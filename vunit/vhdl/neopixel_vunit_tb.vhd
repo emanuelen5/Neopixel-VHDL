@@ -6,7 +6,6 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
 use work.neopixel_pkg.all;
-use work.neopixel;
 
 entity neopixel_vunit_tb is
   generic (
@@ -33,6 +32,5 @@ begin
   end process;
 
   test_runner_watchdog(runner, 10 ms);
-
   
 end architecture; -- arch

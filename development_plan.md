@@ -33,6 +33,7 @@ Waiting for a pixel to be sent
 Send either pixel value at a time, **MSb** ***first***. Use either `T1H`, `T1L` or `T0H`, `T0L` as the periods.
 
 ## Bit serialisation
+Default voltage level: `0V`. Active voltage level: `~VDD` (`+6-7V`)
 
 ### Input
 * Bit by bit input
@@ -55,6 +56,7 @@ Upon error, go into reset state
 When some timing error has occured. Must set error flag high.
 
 ### Timing information
+[Original timing information](https://cdn-shop.adafruit.com/datasheets/WS2812.pdf)
 
 #### Empirical timing diagram
 | Type   | Time `+- 0.15` [us] |
@@ -67,6 +69,8 @@ When some timing error has occured. Must set error flag high.
 Total period time: `TH + TL = 1250ns (+- 600ns)`
 
 #### Simplified timing diagram
+Taken from [Josh.com](https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/).
+
 | Symbol |  Parameter                | Min     | Typical   | Max    | Units |
 |--------|---------------------------|---------|-----------|--------|-------|
 | `T0H`  | 0 code, high voltage time | `200`   | `350`     | `500`  |   ns  |

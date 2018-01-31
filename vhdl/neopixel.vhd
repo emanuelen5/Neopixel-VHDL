@@ -6,7 +6,7 @@ use work.neopixel_pkg.all;
 
 entity neopixel is
   generic (
-    frequency_clk  : real := 50.0e6
+    clk_frequency  : real := 50.0e6
   );
   port (
     clk     : in  std_logic;
@@ -43,7 +43,7 @@ begin
 
   bit_s : bit_serializer
   generic map (
-    frequency_clk => frequency_clk
+    clk_frequency => clk_frequency
   )
   port map (
     clk        => clk,

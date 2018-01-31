@@ -1,0 +1,116 @@
+library ieee;
+  use ieee.std_logic_1164.all;
+  use ieee.numeric_std.all;
+
+library vunit_lib;
+context vunit_lib.vunit_context;
+context vunit_lib.com_context;
+
+use work.neopixel_pkg.all;
+use work.bit_serialized_vunit_tb_pkg.all;
+
+entity bit_serializer_vunit_tb is
+  generic (
+    runner_cfg  : string := runner_cfg_default;
+    output_path : string;
+    tb_path     : string
+  );
+end entity; -- bit_serializer_vunit_tb
+
+architecture arch of bit_serializer_vunit_tb is
+  signal clk   : std_logic := '1';
+  signal rst_n : std_logic := '0';
+  signal valid, ready : boolean := false;
+  signal color_bit    : std_logic := '0';
+  signal serialized   : std_logic := '0';
+  constant clk_period : time := 10 ns;
+begin
+
+  clk <= not clk after clk_period/2;
+
+  tests : process
+    variable self : actor_t := create("tests");
+    variable proc_check_bit : actor_t := find("check_bit");
+    variable proc_send_bit : actor_t := find("send_bit");
+    variable message : message_ptr_t;
+    variable receipt : receipt_t;
+    variable sent_value : std_logic;
+    variable ticks : natural;
+  begin
+    test_runner_setup(runner, runner_cfg);
+    rst_n <= '1';
+
+    while test_suite loop
+      if run("Output is zero on reset") then
+        rst_n <= '0';
+        wait for clk_period;
+        check_equal(serialized, '0');
+      elsif run("1 timing") then
+        send(net, proc_send_bit, encode(std_logic'('1')), receipt);
+        receive(net, self, message);
+        sent_value := decode(message.payload.all);
+      elsif run("0 timing") then
+        send(net, proc_send_bit, encode(std_logic'('0')), receipt);
+      elsif run("Timeout when no data within RES") then
+        check_failed("Not implemented yet");
+      elsif run("Frequency to ticks - round downward") then
+        ticks := frequency_time_to_ticks(1.0e6, 1499 ns);
+        check_equal(ticks, 1);
+      elsif run("Frequency to ticks - round upward") then
+        ticks := frequency_time_to_ticks(1.0e6, 500 ns);
+        check_equal(ticks, 1);
+      elsif run("Frequency to ticks - twice speed") then
+        ticks := frequency_time_to_ticks(2.0e6, 1000 ns);
+        check_equal(ticks, 2);
+      end if;
+    end loop;
+
+    test_runner_cleanup(runner); -- Simulation ends here
+    wait;
+  end process;
+
+  test_runner_watchdog(runner, 10 ms);
+
+  check_serialized_bit : process
+    variable self : actor_t := create("check_bit");
+    variable proc_tests : actor_t := find("tests");
+    variable message : message_ptr_t;
+    variable expected_value : std_logic;
+    variable receipt : receipt_t;
+  begin
+    receive(net, self, message);
+    expected_value := decode(message.payload.all);
+    wait until (rising_edge(clk) and serialized = '1') or (serialized'last_event > clk_period*5);
+
+  end process;
+
+  send_serialized_bit : process
+    variable self : actor_t := create("send_bit");
+    variable message : message_ptr_t;
+    variable send_value : std_logic;
+    variable receipt : receipt_t;
+  begin
+    receive(net, self, message);
+    send_value := decode(message.payload.all);
+    info("send_serialized_bit: Queueing '" & message.payload.all & "' to send serially...");
+    valid <= true;
+    color_bit <= send_value;
+    wait until rising_edge(clk) and ready;
+    valid <= false;
+    info("send_serialized_bit: Sent!");
+  end process;
+
+  bs_i0 : bit_serializer
+  generic map (
+    clk_frequency => 50.0e6
+  )
+  port map (
+    clk        => clk,
+    rst_n      => rst_n,
+    color_bit  => color_bit,
+    valid_s    => valid,
+    ready_s    => ready,
+    serialized => serialized
+  );
+  
+end architecture; -- arch

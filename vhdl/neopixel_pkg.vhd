@@ -23,7 +23,12 @@ package neopixel_pkg is
   -- +- 150 ns
   constant RES : time := 6.00 us; -- 50.0 us according to spec
 
-  component color_serializer
+  function frequency_time_to_ticks(
+    freq : real;
+    t : time
+  ) return natural;
+
+  component color_serializer is
     port (
       clk     : in  std_logic;
       rst_n   : in  std_logic;
@@ -36,10 +41,9 @@ package neopixel_pkg is
     );
   end component; -- color_serializer
 
-
-  component bit_serializer
+  component bit_serializer is
     generic (
-      frequency_clk : real
+      clk_frequency : real
     );
     port (
       clk        : in  std_logic;
@@ -50,4 +54,31 @@ package neopixel_pkg is
       serialized : out std_logic
     );
   end component; -- bit_serializer
+
+  component neopixel is
+    generic (
+      clk_frequency  : real := 50.0e6
+    );
+    port (
+      clk     : in  std_logic;
+      rst_n   : in  std_logic;
+      color   : in  rgb_color_t;
+      valid   : in  boolean; -- Read when ready is '1'
+      ready   : out boolean; -- Ready to accept another color
+      serialized_color : out std_logic
+    );
+  end component; -- neopixel
 end package; -- neopixel_pkg 
+
+package body neopixel_pkg is
+  function frequency_time_to_ticks(
+    freq : real;
+    t : time
+  ) return natural is
+    variable ret : natural := 0;
+  begin
+    assert freq > 0.0 report "Frequency must be positive" severity failure;
+    ret := (integer(t * freq / 100 ms) + 5)/10;
+    return ret;
+  end function;
+end package body; -- neopixel_pkg 
