@@ -36,8 +36,22 @@ begin
     variable receipt : receipt_t;
     variable sent_value : std_logic;
     variable ticks : natural;
+
+    procedure queue_bit_check_received (
+      constant send_value : std_logic 
+    ) is
+    begin
+      send(net, proc_send_bit, encode(send_value), receipt);
+      receive(net, self, message, 1 ms);
+      if message.status = timeout then
+        check_failed("The line was never pulled high by the bit serializer");
+      end if;
+      sent_value := decode(message.payload.all);
+      check_equal(sent_value, send_value);
+    end procedure queue_bit_check_received;
   begin
     test_runner_setup(runner, runner_cfg);
+    --set_stop_level(failure);
     rst_n <= '1';
 
     while test_suite loop
@@ -46,13 +60,14 @@ begin
         wait for clk_period;
         check_equal(serialized, '0');
       elsif run("1 timing") then
-        send(net, proc_send_bit, encode(std_logic'('1')), receipt);
-        receive(net, self, message);
-        sent_value := decode(message.payload.all);
+        queue_bit_check_received('1');
       elsif run("0 timing") then
-        send(net, proc_send_bit, encode(std_logic'('0')), receipt);
+        queue_bit_check_received('0');
       elsif run("Timeout when no data within RES") then
         check_failed("Not implemented yet");
+      elsif run("Frequency to ticks - no rounding") then
+        ticks := frequency_time_to_ticks(1.0e6, 1000 us);
+        check_equal(ticks, 1000);
       elsif run("Frequency to ticks - round downward") then
         ticks := frequency_time_to_ticks(1.0e6, 1499 ns);
         check_equal(ticks, 1);
@@ -71,17 +86,18 @@ begin
 
   test_runner_watchdog(runner, 10 ms);
 
-  check_serialized_bit : process
+  decode_serialized_bit : process
     variable self : actor_t := create("check_bit");
     variable proc_tests : actor_t := find("tests");
     variable message : message_ptr_t;
     variable expected_value : std_logic;
     variable receipt : receipt_t;
+    variable interpreted_high : bit;
   begin
-    receive(net, self, message);
-    expected_value := decode(message.payload.all);
-    wait until (rising_edge(clk) and serialized = '1') or (serialized'last_event > clk_period*5);
-
+    wait on clk until serialized = '1';
+    wait on clk until serialized = '0';
+    interpreted_high := '1' when serialized'last_event > T0.H.maximum else '0';
+    send(net, proc_tests, encode(interpreted_high), receipt);
   end process;
 
   send_serialized_bit : process

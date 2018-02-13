@@ -2,6 +2,9 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library vunit_lib;
+context vunit_lib.vunit_context;
+
 package neopixel_pkg is
   type rgb_color_t is record
     red   : std_logic_vector(7 downto 0);
@@ -12,16 +15,46 @@ package neopixel_pkg is
   -- https://cdn-shop.adafruit.com/datasheets/WS2812.pdf
   -- https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/
 
-  type bit_time_t is record
-    H, L  : time;
+  type time_range is record
+    minimum, mean, maximum : time;
   end record;
 
-  constant T0 : bit_time_t := (H => 0.35 us, L => 0.80 us);
-  constant T1 : bit_time_t := (H => 0.70 us, L => 0.60 us);
+  type high_low_time_t is record
+    H, L  : time_range;
+  end record;
+
+  constant T0 : high_low_time_t := (
+      H => (
+          minimum => 0.200 us,
+          mean => 0.35 us,
+          maximum => 0.5 us
+        ),
+      L => (
+          minimum => 0.65 us,
+          mean => 0.80 us,
+          maximum => 5 us
+        )
+    );
+  constant T1 : high_low_time_t := (
+      H => (
+          minimum => 0.55 us,
+          mean => 0.70 us,
+          maximum => 3600 sec -- No maximum?
+        ),
+      L => (
+          minimum => 0.45 us,
+          mean => 0.60 us,
+          maximum => 5 us
+        )
+    );
 
   -- TH + TL = 1250ns (+- 600ns)
   -- +- 150 ns
-  constant RES : time := 6.00 us; -- 50.0 us according to spec
+  constant RES : time_range := (
+      minimum => 6.00 us,
+      mean => 6.00 us,
+      maximum => 3600 sec
+    ); -- 50.0 us according to spec
 
   function frequency_time_to_ticks(
     freq : real;
