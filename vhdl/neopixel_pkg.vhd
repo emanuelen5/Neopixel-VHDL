@@ -18,6 +18,9 @@ package neopixel_pkg is
   type time_range is record
     minimum, mean, maximum : time;
   end record;
+  type tick_range is record
+    minimum, mean, maximum : natural;
+  end record;
 
   type high_low_time_t is record
     H, L  : time_range;
@@ -60,6 +63,11 @@ package neopixel_pkg is
     freq : real;
     t : time
   ) return natural;
+
+  function to_tick_range (
+    constant freq : real;
+    constant tr   : time_range
+  ) return tick_range;
 
   component color_serializer is
     port (
@@ -113,5 +121,17 @@ package body neopixel_pkg is
     assert freq > 0.0 report "Frequency must be positive" severity failure;
     ret := (integer(t * freq / 100 ms) + 5)/10;
     return ret;
+  end function;
+
+  function to_tick_range (
+    constant freq : real;
+    constant tr   : time_range
+  ) return tick_range is
+    variable ret_var : tick_range;
+  begin
+    ret_var.minimum := frequency_time_to_ticks(freq, tr.minimum);
+    ret_var.mean    := frequency_time_to_ticks(freq, tr.mean);
+    ret_var.maximum := frequency_time_to_ticks(freq, tr.maximum);
+    return ret_var;
   end function;
 end package body; -- neopixel_pkg 
