@@ -21,6 +21,7 @@ lib_sim = vu.add_library("lib_sim")
 lib_sim.add_source_files("../../vhdl/*.vhd")
 lib_sim.add_source_files("./../vhdl/*_pkg.vhd")
 lib_sim.add_source_files("./../vhdl/*_vunit_tb.vhd")
+lib_sim.add_source_files("./../vhdl/tb_vunit_*.vhd")
 
 # Run vunit function
 vu.main()

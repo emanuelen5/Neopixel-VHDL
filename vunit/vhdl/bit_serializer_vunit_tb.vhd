@@ -65,18 +65,6 @@ begin
         queue_bit_check_received('0');
       elsif run("Timeout when no data within RES") then
         check_failed("Not implemented yet");
-      elsif run("Frequency to ticks - no rounding") then
-        ticks := frequency_time_to_ticks(1.0e6, 1000 us);
-        check_equal(ticks, 1000);
-      elsif run("Frequency to ticks - round downward") then
-        ticks := frequency_time_to_ticks(1.0e6, 1499 ns);
-        check_equal(ticks, 1);
-      elsif run("Frequency to ticks - round upward") then
-        ticks := frequency_time_to_ticks(1.0e6, 500 ns);
-        check_equal(ticks, 1);
-      elsif run("Frequency to ticks - twice speed") then
-        ticks := frequency_time_to_ticks(2.0e6, 1000 ns);
-        check_equal(ticks, 2);
       end if;
     end loop;
 
