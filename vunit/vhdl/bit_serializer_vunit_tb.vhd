@@ -42,16 +42,16 @@ begin
     ) is
     begin
       send(net, proc_send_bit, encode(send_value), receipt);
-      receive(net, self, message, 1 ms);
+      receive(net, self, message, 10 * clk_period);
       if message.status = timeout then
         check_failed("The line was never pulled high by the bit serializer");
       end if;
       sent_value := decode(message.payload.all);
-      check_equal(sent_value, send_value);
+      check_equal(sent_value, send_value, "Comparison between sent value and intrepreted value");
     end procedure queue_bit_check_received;
   begin
     test_runner_setup(runner, runner_cfg);
-    --set_stop_level(failure);
+    checker_init(stop_level => failure);
     rst_n <= '1';
 
     while test_suite loop
