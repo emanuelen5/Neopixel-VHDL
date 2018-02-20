@@ -87,12 +87,13 @@ package neopixel_pkg is
       clk_frequency : real
     );
     port (
-      clk        : in  std_logic;
-      rst_n      : in  std_logic;
-      color_bit  : in  std_logic;
-      valid_s    : in  boolean; -- Read when ready is '1'
-      ready_s    : out boolean; -- Ready to accept another color
-      serialized : out std_logic
+      clk         : in  std_logic;
+      rst_n       : in  std_logic;
+      color_bit   : in  std_logic;
+      valid_s     : in  boolean; -- Read when ready is '1'
+      ready_s     : out boolean; -- Ready to accept another color
+      color_bit_n : out natural range 0 to 7;
+      serialized  : out std_logic
     );
   end component; -- bit_serializer
 

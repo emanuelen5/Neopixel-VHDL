@@ -9,22 +9,25 @@ entity bit_serializer is
         clk_frequency : real
     );
     port (
-        clk        : in  std_logic;
-        rst_n      : in  std_logic := '1';
-        color_bit  : in  std_logic;
-        valid_s    : in  boolean; -- Read when ready is '1'
-        ready_s    : out boolean := true; -- Ready to accept another color
-        serialized : out std_logic := '0'
+        clk         : in  std_logic;
+        rst_n       : in  std_logic := '1';
+        color_bit   : in  std_logic;
+        valid_s     : in  boolean; -- Read when ready is '1'
+        ready_s     : out boolean := true; -- Ready to accept another color bit
+        color_bit_n : out natural range 0 to 7;
+        serialized  : out std_logic := '0'
     );
 end entity; -- bit_serializer
 
 architecture arch of bit_serializer is
-    -- Some aliases to help overloading
+    -- Time ranges converted to tick ranges
     constant T0H_ticks : tick_range := to_tick_range(clk_frequency, work.neopixel_pkg.T0.H);
     constant T0L_ticks : tick_range := to_tick_range(clk_frequency, work.neopixel_pkg.T0.L);
     constant T1H_ticks : tick_range := to_tick_range(clk_frequency, work.neopixel_pkg.T1.H);
     constant T1L_ticks : tick_range := to_tick_range(clk_frequency, work.neopixel_pkg.T1.L);
     constant RES_ticks : tick_range := to_tick_range(clk_frequency, work.neopixel_pkg.RES);
+
+    signal timeout : boolean;
 
     -- The stored value for the 
     signal color_bit_reg : std_logic;
@@ -39,14 +42,21 @@ begin
         case serializer_state is
             when reset =>
                 ready_s <= false;
-            when done =>
+                serialized <= '0';
+            when done | low =>
                 ready_s <= true;
-            when low =>
+                serialized <= '0';
+            when high =>
                 ready_s <= true;
+                serialized <= '1';
             when others =>
                 ready_s <= false;
+                serialized <= '0';
         end case;
     end process;
+
+    -- Convenience signal
+    timeout <= count > chosen_ticks.maximum;
 
     state_machine_transitions : process(clk, rst_n)
     begin
@@ -69,7 +79,15 @@ begin
                     end if;
 
                 when high =>
-                    null;
+                    if timeout then
+                        serializer_state <= low;
+                    end if;
+
+                when low =>
+                    if timeout then
+                        serializer_state <= res;
+                    end if;
+
                 when others =>
                     serializer_state <= reset;
              end case;
@@ -81,7 +99,11 @@ begin
         if rising_edge(clk) then
             case serializer_state is
                 when high | low | res =>
-                    count <= count + 1;
+                    if timeout then 
+                        count <= 0;
+                    else
+                        count <= count + 1;
+                    end if;
                 when reset | done =>
                     count <= 0;
                 when others =>
