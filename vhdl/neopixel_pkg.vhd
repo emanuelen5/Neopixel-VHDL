@@ -6,11 +6,19 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
 package neopixel_pkg is
+  subtype color_t is unsigned(7 downto 0);
   type rgb_color_t is record
-    red   : std_logic_vector(7 downto 0);
-    green : std_logic_vector(7 downto 0);
-    blue  : std_logic_vector(7 downto 0);
+    red   : color_t;
+    green : color_t;
+    blue  : color_t;
   end record;
+
+  constant black : rgb_color_t := (
+    others => (others => '0')
+  ); 
+  constant white : rgb_color_t := (
+    others => (others => '1')
+  ); 
 
   -- https://cdn-shop.adafruit.com/datasheets/WS2812.pdf
   -- https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/
@@ -89,7 +97,7 @@ package neopixel_pkg is
     port (
       clk         : in  std_logic;
       rst_n       : in  std_logic;
-      color_bit   : in  std_logic;
+      color       : in  rgb_color_t;
       valid_s     : in  boolean; -- Read when ready is '1'
       ready_s     : out boolean; -- Ready to accept another color
       color_bit_n : out natural range 0 to 7;

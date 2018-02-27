@@ -23,5 +23,8 @@ lib_sim.add_source_files("./../vhdl/*_pkg.vhd")
 lib_sim.add_source_files("./../vhdl/*_vunit_tb.vhd")
 lib_sim.add_source_files("./../vhdl/tb_vunit_*.vhd")
 
+pkg = lib_sim.package('message_types_pkg')
+pkg.generate_codecs(codec_package_name='message_codecs_pkg', used_packages=["neopixel_pkg", "ieee.std_logic_1164"])
+
 # Run vunit function
 vu.main()

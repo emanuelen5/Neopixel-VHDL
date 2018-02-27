@@ -2,12 +2,14 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+use work.neopixel_pkg.all;
+
 package bit_serialized_vunit_tb_pkg is
   -- Send a bit to the bit serializer
   procedure send(
     signal clk : in std_logic;
-    constant bit_value :  std_logic;
-    signal colour_bit : out std_logic;
+    constant bit_value :  rgb_color_t;
+    signal color : out rgb_color_t;
     signal valid : out boolean;
     signal ready : in  boolean
   );
@@ -22,14 +24,14 @@ end package; -- bit_serialized_vunit_tb_pkg
 package body bit_serialized_vunit_tb_pkg is
   procedure send(
     signal clk : in std_logic;
-    constant bit_value :  std_logic;
-    signal colour_bit : out std_logic;
+    constant bit_value :  rgb_color_t;
+    signal color : out rgb_color_t;
     signal valid : out boolean;
     signal ready : in  boolean
   ) is
   begin
     valid <= true;
-    colour_bit <= bit_value;
+    color <= bit_value;
     wait until rising_edge(clk) and ready;
     valid <= false;
   end procedure;

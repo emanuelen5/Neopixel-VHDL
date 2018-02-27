@@ -11,7 +11,7 @@ entity bit_serializer is
     port (
         clk         : in  std_logic;
         rst_n       : in  std_logic := '1';
-        color_bit   : in  std_logic;
+        color       : in  rgb_color_t;
         valid_s     : in  boolean; -- Read when ready is '1'
         ready_s     : out boolean := true; -- Ready to accept another color bit
         color_bit_n : out natural range 0 to 7;
@@ -30,7 +30,11 @@ architecture arch of bit_serializer is
     signal timeout : boolean;
 
     -- The stored value for the 
+    signal color_reg : rgb_color_t;
     signal color_bit_reg : std_logic;
+    signal color_bit : std_logic;
+    type color_cycle_state is (red, green, blue);
+    subtype bit_cycle_state is natural range 0 to 7;
 
     type serialization_state is (reset, high, low, res, done);
     signal serializer_state : serialization_state;
