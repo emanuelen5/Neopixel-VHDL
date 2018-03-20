@@ -14,7 +14,6 @@ entity bit_serializer is
         color       : in  rgb_color_t;
         valid_s     : in  boolean; -- Read when ready is '1'
         ready_s     : out boolean := true; -- Ready to accept another color bit
-        color_bit_n : out natural range 0 to 7;
         serialized  : out std_logic := '0'
     );
 end entity; -- bit_serializer
@@ -60,11 +59,33 @@ begin
     end process;
 
     -- Convenience signal
-    timeout <= count > chosen_ticks.maximum;
-
-    state_machine_transitions : process(clk, rst_n)
+    timeout_proc : process (count, serializer_state) is
     begin
-        if rst_n = '1' then
+        case serializer_state is
+            when high | low =>
+                timeout <= count >= chosen_ticks.mean - 1;
+            when others =>
+                timeout <= count >= chosen_ticks.maximum - 1;
+        end case;
+    end process timeout_proc;
+
+    color_serializer_state_transitions : process (clk, rst_n) is
+    begin
+        if rst_n = '0' then
+        elsif rising_edge(clk) then
+        end if;
+    end process color_serializer_state_transitions;
+
+    bit_cycle_state_transition : process (clk, rst_n) is
+    begin
+        if rst_n = '0' then
+        elsif rising_edge(clk) then
+        end if;
+    end process bit_cycle_state_transition;
+
+    bit_serializer_state_transitions : process(clk, rst_n)
+    begin
+        if rst_n = '0' then
             chosen_ticks <= RES_ticks;
             serializer_state <= reset;
         elsif rising_edge(clk) then
@@ -75,11 +96,12 @@ begin
                     -- Go to next state if there is a valid color present
                     if valid_s then
                         color_bit_reg <= color_bit;
-                        if color_bit = '1' then
+                        if color_bit = '0' then
                             chosen_ticks <= T0H_ticks;
-                        elsif color_bit = '1' then
+                        else -- color_bit = '1' then
                             chosen_ticks <= T1H_ticks;
                         end if;
+                        serializer_state <= high;
                     end if;
 
                 when high =>
@@ -96,7 +118,7 @@ begin
                     serializer_state <= reset;
              end case;
         end if;
-    end process; -- state_machine_transitions
+    end process bit_serializer_state_transitions;
 
     counter_proc : process(clk)
     begin

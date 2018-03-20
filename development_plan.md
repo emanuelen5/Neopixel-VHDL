@@ -59,14 +59,14 @@ When some timing error has occured. Must set error flag high.
 [Original timing information](https://cdn-shop.adafruit.com/datasheets/WS2812.pdf)
 
 #### Empirical timing diagram
-| Type   | Time `+- 0.15` [us] |
+| Type   | Time `± 0.15` [us] |
 |--------|---------------------|
 | `T0H`  | `0.35`              |
 | `T0L`  | `0.80`              |
 | `T1H`  | `0.70`              |
 | `T1L`  | `0.60`              |
 | `RES`  | `5.00` minimum      |
-Total period time: `TH + TL = 1250ns (+- 600ns)`
+Total period time: `TH + TL = 1250ns (± 600ns)`
 
 #### Simplified timing diagram
 Taken from [Josh.com](https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/).

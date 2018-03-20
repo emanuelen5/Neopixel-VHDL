@@ -26,7 +26,8 @@ architecture arch of bit_serializer_vunit_tb is
   signal valid, ready : boolean := false;
   signal color        : rgb_color_t := black;
   signal serialized   : std_logic := '0';
-  constant clk_period : time := 10 ns;
+  constant frequency : real := 50.0e6;
+  constant clk_period : time := 1.0 us / (frequency / 1.0e6);
 begin
 
   clk <= not clk after clk_period/2;
@@ -64,9 +65,9 @@ begin
       constant msg : string := ""
     ) is
     begin
-      receive(net, self_bit, message, 10 * clk_period);
+      receive(net, self_bit, message, 10 ms);
       if message.status = timeout then
-        check_failed("The line was never pulled high by the bit serializer");
+        check_failed("The line was never pulled high by the bit serializer", level => failure);
       end if;
       decoded_bit := decode(message.payload.all);
       if expected /= '-' then
@@ -83,18 +84,15 @@ begin
       for color_index in 1 to 3 loop
         for bit_index in 0 to 7 loop
           receive_bit;
-          if message.status = timeout then
-            check_failed("The line was never pulled high by the bit serializer");
-          end if;
+          case color_index is
+            when 1 =>
+              tmp_color.red(bit_index) := decoded_bit;
+            when 2 =>
+              tmp_color.green(bit_index) := decoded_bit;
+            when 3 =>
+              tmp_color.blue(bit_index) := decoded_bit;
+          end case;
         end loop;
-        case color_index is
-          when 1 =>
-            tmp_color.red(color_index) := decoded_bit;
-          when 2 =>
-            tmp_color.green(color_index) := decoded_bit;
-          when 3 =>
-            tmp_color.blue(color_index) := decoded_bit;
-        end case;
       end loop;
       check_equal(tmp_color, send_value, "Comparison between sent value and intrepreted value");
     end procedure queue_color_check_received;
@@ -136,10 +134,17 @@ begin
     variable expected_value : std_logic;
     variable receipt : receipt_t;
     variable interpreted_high : bit;
+    variable start_time : time;
   begin
-    wait on clk until serialized = '1';
-    wait on clk until serialized = '0';
-    interpreted_high := '1' when serialized'last_event > T0.H.maximum else '0';
+    log("serialized is not zero");
+    wait until rising_edge(clk) and serialized = '1';
+    start_time := now;
+    log("serialized is one");
+    wait until rising_edge(clk) and serialized = '0';
+    log("serialized is zero");
+    interpreted_high := '1' when (now - start_time) > T0.H.maximum else '0';
+    log("interpreted as: " & to_string(interpreted_high));
+    log("Time high: " & to_string(now - start_time));
     send(net, proc_tests_bit, encode(interpreted_high), receipt);
   end process;
 
@@ -161,7 +166,7 @@ begin
 
   bs_i0 : bit_serializer
   generic map (
-    clk_frequency => 50.0e6
+    clk_frequency => frequency
   )
   port map (
     clk        => clk,

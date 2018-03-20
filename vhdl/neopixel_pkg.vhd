@@ -100,7 +100,6 @@ package neopixel_pkg is
       color       : in  rgb_color_t;
       valid_s     : in  boolean; -- Read when ready is '1'
       ready_s     : out boolean; -- Ready to accept another color
-      color_bit_n : out natural range 0 to 7;
       serialized  : out std_logic
     );
   end component; -- bit_serializer

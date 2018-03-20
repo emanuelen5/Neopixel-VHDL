@@ -26,5 +26,9 @@ lib_sim.add_source_files("./../vhdl/tb_vunit_*.vhd")
 pkg = lib_sim.package('message_types_pkg')
 pkg.generate_codecs(codec_package_name='message_codecs_pkg', used_packages=["neopixel_pkg", "ieee.std_logic_1164"])
 
+vu.set_sim_option("modelsim.vsim_flags", ["-novopt"])
+vu.set_sim_option("modelsim.vsim_flags.gui", ["-novopt"])
+vu.set_sim_option("modelsim.init_file.gui", "modelsim_setup/wave_bit_serializer.do")
+
 # Run vunit function
 vu.main()
