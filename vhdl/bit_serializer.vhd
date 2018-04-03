@@ -59,7 +59,7 @@ begin
     end process;
 
     -- Convenience signal
-    timeout_proc : process (count, serializer_state) is
+    timeout_proc : process (count, serializer_state, chosen_ticks) is
     begin
         case serializer_state is
             when high | low =>
