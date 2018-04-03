@@ -117,6 +117,11 @@ package neopixel_pkg is
       serialized_color : out std_logic
     );
   end component; -- neopixel
+
+  function get_bit (
+    rgb   : rgb_color_t;
+    index : natural range 0 to 23
+  ) return std_logic;
 end package; -- neopixel_pkg 
 
 package body neopixel_pkg is
@@ -141,5 +146,19 @@ package body neopixel_pkg is
     ret_var.mean    := frequency_time_to_ticks(freq, tr.mean);
     ret_var.maximum := frequency_time_to_ticks(freq, tr.maximum);
     return ret_var;
+  end function;
+
+  function get_bit (
+    rgb   : rgb_color_t;
+    index : natural range 0 to 23
+  ) return std_logic is
+  begin
+    if (index < 8) then
+      return std_logic(rgb.green(index - 0));
+    elsif (index < 16) then
+      return std_logic(rgb.red(index - 8));
+    else
+      return std_logic(rgb.blue(index - 16));
+    end if;
   end function;
 end package body; -- neopixel_pkg 
