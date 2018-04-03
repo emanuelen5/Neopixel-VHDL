@@ -137,10 +137,14 @@ begin
     variable start_time : time;
   begin
     log("serialized is not zero");
-    wait until rising_edge(clk) and serialized = '1';
+    if (serialized /= '1') then
+      wait until serialized = '1';
+    end if;
     start_time := now;
     log("serialized is one");
-    wait until rising_edge(clk) and serialized = '0';
+    if (serialized /= '0') then
+      wait until serialized = '0';
+    end if;
     log("serialized is zero");
     interpreted_high := '1' when (now - start_time) > T0.H.maximum else '0';
     log("interpreted as: " & to_string(interpreted_high));
