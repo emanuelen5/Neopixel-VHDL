@@ -1,5 +1,9 @@
+from vunit import __version__ as vunit_version
 from vunit import VUnit
 import sys
+
+from distutils.version import StrictVersion as V
+assert V(vunit_version) >= V("3.0.0")
 
 if not "-u" in sys.argv:
   print("****************************************************")

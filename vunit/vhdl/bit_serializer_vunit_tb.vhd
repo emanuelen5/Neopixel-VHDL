@@ -38,7 +38,6 @@ begin
     variable proc_check_bit : actor_t := find("check_bit");
     variable proc_send_color : actor_t := find("send_color");
     variable message : msg_t;
-    variable receipt : receipt_t;
     variable sent_value : rgb_color_t;
     variable decoded_bit : std_logic;
     variable ticks : natural;
@@ -57,7 +56,9 @@ begin
       constant send_value : rgb_color_t
     ) is
     begin
-      send(net, proc_send_color, color_m(send_value.red, send_value.blue, send_value.green), receipt);
+      message := new_msg;
+      push(message, color_m(send_value.red, send_value.blue, send_value.green));
+      send(net, proc_send_color, message);
     end procedure;
 
     procedure receive_bit (
@@ -132,7 +133,6 @@ begin
     variable proc_tests_bit : actor_t := find("tests_bit");
     variable message : msg_t;
     variable expected_value : std_logic;
-    variable receipt : receipt_t;
     variable interpreted_high : bit;
     variable start_time : time;
   begin
@@ -149,14 +149,15 @@ begin
     interpreted_high := '1' when (now - start_time) > T0.H.maximum else '0';
     log("interpreted as: " & to_string(interpreted_high));
     log("Time high: " & to_string(now - start_time));
-    send(net, proc_tests_bit, encode(interpreted_high), receipt);
+    message := new_msg;
+    push(message, interpreted_high);
+    send(net, proc_tests_bit, message);
   end process;
 
   send_serialized_bit : process
     variable self : actor_t := new_actor("send_color");
     variable message : msg_t;
     variable send_value : rgb_color_t;
-    variable receipt : receipt_t;
     variable color_m_msg : color_m_msg_t;
   begin
     receive(net, self, message);
