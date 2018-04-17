@@ -8,15 +8,15 @@ context vunit_lib.com_context;
 
 use work.neopixel_pkg.all;
 
-entity tb_vunit_helper is
+entity vunit_tb_helper is
   generic (
     runner_cfg  : string := runner_cfg_default;
     output_path : string;
     tb_path     : string
   );
-end entity; -- tb_vunit_helper
+end entity; -- vunit_tb_helper
 
-architecture arch of tb_vunit_helper is
+architecture arch of vunit_tb_helper is
 begin
   tests : process
     variable ticks : natural;

@@ -4,7 +4,7 @@ library ieee;
 
 use work.neopixel_pkg.all;
 
-package bit_serialized_vunit_tb_pkg is
+package bit_serializer_vunit_tb_pkg is
   -- Send a bit to the bit serializer
   procedure send(
     signal clk : in std_logic;
@@ -19,9 +19,9 @@ package bit_serialized_vunit_tb_pkg is
     signal clk : in std_logic;
     signal start_flag : out boolean
   );
-end package; -- bit_serialized_vunit_tb_pkg
+end package; -- bit_serializer_vunit_tb_pkg
 
-package body bit_serialized_vunit_tb_pkg is
+package body bit_serializer_vunit_tb_pkg is
   procedure send(
     signal clk : in std_logic;
     constant bit_value :  rgb_color_t;

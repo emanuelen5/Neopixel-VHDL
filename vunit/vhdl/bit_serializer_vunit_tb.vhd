@@ -7,7 +7,7 @@ context vunit_lib.vunit_context;
 context vunit_lib.com_context;
 
 use work.neopixel_pkg.all;
-use work.bit_serialized_vunit_tb_pkg.all;
+use work.bit_serializer_vunit_tb_pkg.all;
 
 use work.message_types_pkg.all;
 use work.message_codecs_pkg.all;
@@ -166,7 +166,7 @@ begin
     wait until rising_edge(clk) and ready;
     valid <= false;
     info("send_serialized_bit: Sent!");
-  end process;
+  end process send_serialized_bit;
 
   bs_i0 : bit_serializer
   generic map (
