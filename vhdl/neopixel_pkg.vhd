@@ -13,10 +13,10 @@ package neopixel_pkg is
     blue  : color_t;
   end record;
 
-  constant black : rgb_color_t := (
+  constant neopixel_black : rgb_color_t := (
     others => (others => '0')
   ); 
-  constant white : rgb_color_t := (
+  constant neopixel_white : rgb_color_t := (
     others => (others => '1')
   ); 
 

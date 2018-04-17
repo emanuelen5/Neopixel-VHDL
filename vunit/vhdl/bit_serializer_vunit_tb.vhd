@@ -24,7 +24,7 @@ architecture arch of bit_serializer_vunit_tb is
   signal clk   : std_logic := '1';
   signal rst_n : std_logic := '0';
   signal valid, ready : boolean := false;
-  signal color        : rgb_color_t := black;
+  signal color        : rgb_color_t := neopixel_black;
   signal serialized   : std_logic := '0';
   constant frequency : real := 50.0e6;
   constant clk_period : time := 1.0 us / (frequency / 1.0e6);
@@ -33,11 +33,11 @@ begin
   clk <= not clk after clk_period/2;
 
   tests : process
-    variable self_bit : actor_t := create("tests_bit");
-    variable self_color : actor_t := create("tests_color");
+    variable self_bit : actor_t := new_actor("tests_bit");
+    variable self_color : actor_t := new_actor("tests_color");
     variable proc_check_bit : actor_t := find("check_bit");
     variable proc_send_color : actor_t := find("send_color");
-    variable message : message_ptr_t;
+    variable message : msg_t;
     variable receipt : receipt_t;
     variable sent_value : rgb_color_t;
     variable decoded_bit : std_logic;
@@ -69,7 +69,7 @@ begin
       if message.status = timeout then
         check_failed("The line was never pulled high by the bit serializer", level => failure);
       end if;
-      decoded_bit := decode(message.payload.all);
+      decoded_bit := pop(message);
       if expected /= '-' then
         check_equal(decoded_bit, expected, "Comparison between sent value and intrepreted value");
       end if;
@@ -78,7 +78,7 @@ begin
     procedure queue_color_check_received (
       constant send_value : rgb_color_t 
     ) is
-      variable tmp_color : rgb_color_t := black;
+      variable tmp_color : rgb_color_t := neopixel_black;
     begin
       queue_color(send_value);
       for color_index in 1 to 3 loop
@@ -107,15 +107,15 @@ begin
         wait for clk_period;
         check_equal(serialized, '0');
       elsif run("1 timing") then
-        queue_color(white);
+        queue_color(neopixel_white);
         receive_bit('1');
       elsif run("0 timing") then
-        queue_color(black);
+        queue_color(neopixel_black);
         receive_bit('0');
       elsif run("Serialization: White (only ones)") then
-        queue_color_check_received(white);
+        queue_color_check_received(neopixel_white);
       elsif run("Serialization: Black (only zeros)") then
-        queue_color_check_received(black);
+        queue_color_check_received(neopixel_black);
       elsif run("Timeout when no data within RES") then
         check_failed("Not implemented yet");
       end if;
@@ -128,9 +128,9 @@ begin
   test_runner_watchdog(runner, 10 ms);
 
   decode_serialized_bit : process
-    variable self : actor_t := create("check_bit");
+    variable self : actor_t := new_actor("check_bit");
     variable proc_tests_bit : actor_t := find("tests_bit");
-    variable message : message_ptr_t;
+    variable message : msg_t;
     variable expected_value : std_logic;
     variable receipt : receipt_t;
     variable interpreted_high : bit;
@@ -153,14 +153,16 @@ begin
   end process;
 
   send_serialized_bit : process
-    variable self : actor_t := create("send_color");
-    variable message : message_ptr_t;
+    variable self : actor_t := new_actor("send_color");
+    variable message : msg_t;
     variable send_value : rgb_color_t;
     variable receipt : receipt_t;
+    variable color_m_msg : color_m_msg_t;
   begin
     receive(net, self, message);
-    send_value := to_rgb_color_t(decode(message.payload.all));
-    info("send_serialized_bit: Queueing color '" & message.payload.all & "' to be sent serially...");
+    color_m_msg := pop(message);
+    send_value := to_rgb_color_t(color_m_msg);
+    info("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
     valid <= true;
     color <= send_value;
     wait until rising_edge(clk) and ready;
