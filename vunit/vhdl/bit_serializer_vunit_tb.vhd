@@ -33,10 +33,10 @@ begin
   clk <= not clk after clk_period/2;
 
   tests : process
-    variable self_bit : actor_t := new_actor("tests_bit");
-    variable self_color : actor_t := new_actor("tests_color");
-    variable proc_check_bit : actor_t := find("check_bit");
-    variable proc_send_color : actor_t := find("send_color");
+    constant self_bit : actor_t := new_actor("tests_bit");
+    constant self_color : actor_t := new_actor("tests_color");
+    constant proc_check_bit : actor_t := find("check_bit");
+    constant proc_send_color : actor_t := find("send_color");
     variable message : msg_t;
     variable sent_value : rgb_color_t;
     variable decoded_bit : std_logic;
@@ -99,7 +99,7 @@ begin
     end procedure queue_color_check_received;
   begin
     test_runner_setup(runner, runner_cfg);
-    checker_init(stop_level => failure);
+    set_stop_level(failure);
     rst_n <= '1';
 
     while test_suite loop
@@ -129,8 +129,8 @@ begin
   test_runner_watchdog(runner, 10 ms);
 
   decode_serialized_bit : process
-    variable self : actor_t := new_actor("check_bit");
-    variable proc_tests_bit : actor_t := find("tests_bit");
+    constant self : actor_t := new_actor("check_bit");
+    constant proc_tests_bit : actor_t := find("tests_bit");
     variable message : msg_t;
     variable expected_value : std_logic;
     variable interpreted_high : bit;
@@ -155,7 +155,7 @@ begin
   end process;
 
   send_serialized_bit : process
-    variable self : actor_t := new_actor("send_color");
+    constant self : actor_t := new_actor("send_color");
     variable message : msg_t;
     variable send_value : rgb_color_t;
     variable color_m_msg : color_m_msg_t;
