@@ -3,6 +3,9 @@ library ieee ;
   use ieee.numeric_std.all;
 
 use work.neopixel_pkg.all;
+library vunit_lib;
+context vunit_lib.vunit_context;
+context vunit_lib.com_context;
 
 package message_types_pkg is
 
@@ -32,6 +35,18 @@ package message_types_pkg is
     constant color_m_msg : color_m_msg_t
   ) return rgb_color_t;
 
+  procedure write (
+    signal net : inout network_t;
+    constant actor : in actor_t;
+    constant color : in rgb_color_t
+  );
+
+  procedure read (
+    signal net : inout network_t;
+    constant actor : in actor_t;
+    variable color : out rgb_color_t
+  );
+
 end package; -- message_types_pkg
 
 package body message_types_pkg is
@@ -45,4 +60,30 @@ package body message_types_pkg is
     ret_val.blue := color_m_msg.blue;
     return ret_val;
   end function;
+
+  procedure write (
+    signal net : inout network_t;
+    constant actor : in actor_t;
+    constant color : in rgb_color_t
+  ) is
+    variable msg : msg_t := new_msg;
+  begin
+    push(msg, color.red);
+    push(msg, color.green);
+    push(msg, color.blue);
+    send(net, actor, msg);
+  end procedure;
+
+  procedure read (
+    signal net : inout network_t;
+    constant actor : in actor_t;
+    variable color : out rgb_color_t
+  ) is
+    variable msg : msg_t;
+  begin
+    receive(net, actor, msg);
+    color.red := pop(msg);
+    color.green := pop(msg);
+    color.blue := pop(msg);
+  end procedure read;
 end package body message_types_pkg;

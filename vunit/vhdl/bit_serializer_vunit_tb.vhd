@@ -56,9 +56,7 @@ begin
       constant send_value : rgb_color_t
     ) is
     begin
-      message := new_msg;
-      push(message, color_m(send_value.red, send_value.blue, send_value.green));
-      send(net, proc_send_color, message);
+      write(net, proc_send_color, send_value);
     end procedure;
 
     procedure receive_bit (
@@ -160,10 +158,8 @@ begin
     variable send_value : rgb_color_t;
     variable color_m_msg : color_m_msg_t;
   begin
-    receive(net, self, message);
-    color_m_msg := pop(message);
-    send_value := to_rgb_color_t(color_m_msg);
-    info("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
+    read(net, self, send_value);
+    --info("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
     valid <= true;
     color <= send_value;
     wait until rising_edge(clk) and ready;
