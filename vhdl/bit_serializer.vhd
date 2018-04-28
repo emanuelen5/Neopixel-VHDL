@@ -44,17 +44,14 @@ begin
 
     debug_current_bit <= get_bit(color_reg, color_bit_index);
 
-    state_signal_driver : process(all)
+    state_signal_driver : process (serializer_state)
     begin
+        ready_s <= false;
+        serialized <= '0';
         case serializer_state is
-            when reset =>
-                ready_s <= false;
-                serialized <= '0';
-            when done | low =>
+            when done =>
                 ready_s <= true;
-                serialized <= '0';
             when high =>
-                ready_s <= true;
                 serialized <= '1';
             when others =>
                 ready_s <= false;
@@ -72,20 +69,6 @@ begin
                 timeout <= count >= chosen_ticks.maximum - 1;
         end case;
     end process timeout_proc;
-
-    color_serializer_state_transitions : process (clk, rst_n) is
-    begin
-        if rst_n = '0' then
-        elsif rising_edge(clk) then
-        end if;
-    end process color_serializer_state_transitions;
-
-    bit_cycle_state_transition : process (clk, rst_n) is
-    begin
-        if rst_n = '0' then
-        elsif rising_edge(clk) then
-        end if;
-    end process bit_cycle_state_transition;
 
     bit_serializer_state_transitions : process(clk, rst_n)
     begin
@@ -143,9 +126,11 @@ begin
         end if;
     end process bit_serializer_state_transitions;
 
-    counter_proc : process(clk)
+    counter_proc : process(clk, rst_n)
     begin
-        if rising_edge(clk) then
+        if rst_n = '0' then
+            count <= 0;
+        elsif rising_edge(clk) then
             case serializer_state is
                 when high | low | res =>
                     if timeout then 
