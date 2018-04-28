@@ -15,10 +15,10 @@ package neopixel_pkg is
 
   constant neopixel_black : rgb_color_t := (
     others => (others => '0')
-  ); 
+  );
   constant neopixel_white : rgb_color_t := (
     others => (others => '1')
-  ); 
+  );
 
   -- https://cdn-shop.adafruit.com/datasheets/WS2812.pdf
   -- https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/
@@ -122,7 +122,7 @@ package neopixel_pkg is
     rgb   : rgb_color_t;
     index : natural range 0 to 23
   ) return std_logic;
-end package; -- neopixel_pkg 
+end package; -- neopixel_pkg
 
 package body neopixel_pkg is
   function frequency_time_to_ticks(
@@ -161,4 +161,4 @@ package body neopixel_pkg is
       return std_logic(rgb.blue(index - 16));
     end if;
   end function;
-end package body; -- neopixel_pkg 
+end package body; -- neopixel_pkg

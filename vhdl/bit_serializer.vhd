@@ -39,7 +39,11 @@ architecture arch of bit_serializer is
     signal chosen_ticks : tick_range;
     signal count : natural;
     signal color_bit_index : natural range 0 to 23;
+    signal debug_current_bit : std_logic;
 begin
+
+    debug_current_bit <= get_bit(color_reg, color_bit_index);
+
     state_signal_driver : process(all)
     begin
         case serializer_state is

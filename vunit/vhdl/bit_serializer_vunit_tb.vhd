@@ -2,6 +2,9 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+library osvvm;
+  use osvvm.RandomPkg.all;
+
 library vunit_lib;
 context vunit_lib.vunit_context;
 context vunit_lib.com_context;
@@ -39,17 +42,16 @@ begin
     constant proc_send_color : actor_t := find("send_color");
     variable message : msg_t;
     variable sent_value : rgb_color_t;
-    variable decoded_bit : std_logic;
     variable ticks : natural;
 
     procedure check_equal (
-      expected, actual : rgb_color_t;
+      actual, expected : rgb_color_t;
       msg : string := ""
     ) is
     begin
-      check_equal(expected.red, actual.red, join("Red is not equal: ", msg));
-      check_equal(expected.green, actual.green, join("Green is not equal: ", msg));
-      check_equal(expected.blue, actual.blue, join("Blue is not equal: ", msg));
+      check_equal(actual.red, expected.red, join("Red is not equal: ", msg));
+      check_equal(actual.green, expected.green, join("Green is not equal: ", msg));
+      check_equal(actual.blue, expected.blue, join("Blue is not equal: ", msg));
     end procedure;
 
     procedure queue_color (
@@ -60,9 +62,21 @@ begin
     end procedure;
 
     procedure receive_bit (
-      constant expected : std_logic := '-';
-      constant msg : string := ""
+      variable decoded_bit : out std_logic
     ) is
+    begin
+      receive(net, self_bit, message, 10 ms);
+      if message.status = timeout then
+        check_failed("The line was never pulled high by the bit serializer", level => failure);
+      end if;
+      decoded_bit := pop(message);
+    end procedure receive_bit;
+
+    procedure expect_bit (
+      constant expected    : in  std_logic := '-';
+      constant msg         : in  string := ""
+    ) is
+      variable decoded_bit : std_logic;
     begin
       receive(net, self_bit, message, 10 ms);
       if message.status = timeout then
@@ -72,30 +86,34 @@ begin
       if expected /= '-' then
         check_equal(decoded_bit, expected, "Comparison between sent value and intrepreted value");
       end if;
-    end procedure receive_bit;
+    end procedure expect_bit;
 
     procedure queue_color_check_received (
       constant send_value : rgb_color_t 
     ) is
       variable tmp_color : rgb_color_t := neopixel_black;
+      variable tmp_bit : std_logic;
     begin
       queue_color(send_value);
       for color_index in 1 to 3 loop
-        for bit_index in 0 to 7 loop
-          receive_bit;
+        for bit_index in 7 downto 0 loop
+          receive_bit(tmp_bit);
           case color_index is
             when 1 =>
-              tmp_color.red(bit_index) := decoded_bit;
+              tmp_color.green(bit_index) := tmp_bit;
             when 2 =>
-              tmp_color.green(bit_index) := decoded_bit;
+              tmp_color.red(bit_index) := tmp_bit;
             when 3 =>
-              tmp_color.blue(bit_index) := decoded_bit;
+              tmp_color.blue(bit_index) := tmp_bit;
           end case;
         end loop;
       end loop;
       check_equal(tmp_color, send_value, "Comparison between sent value and intrepreted value");
     end procedure queue_color_check_received;
+
+    variable RV : RandomPType;
   begin
+    RV.InitSeed(RV'instance_name);
     test_runner_setup(runner, runner_cfg);
     set_stop_level(failure);
     rst_n <= '1';
@@ -107,14 +125,26 @@ begin
         check_equal(serialized, '0');
       elsif run("1 timing") then
         queue_color(neopixel_white);
-        receive_bit('1');
+        expect_bit('1');
       elsif run("0 timing") then
         queue_color(neopixel_black);
-        receive_bit('0');
+        expect_bit('0');
       elsif run("Serialization: White (only ones)") then
         queue_color_check_received(neopixel_white);
       elsif run("Serialization: Black (only zeros)") then
         queue_color_check_received(neopixel_black);
+      elsif run("Serialization: Red") then
+        queue_color_check_received(
+          rgb_color_t'(red => (others => '1'), others => (others => '0'))
+        );
+      elsif run("Serialization: Random color") then
+        queue_color_check_received(
+          rgb_color_t'(
+            red => RV.RandUnsigned(8),
+            green => RV.RandUnsigned(8),
+            blue => RV.RandUnsigned(8)
+          )
+        );
       elsif run("Timeout when no data within RES") then
         check_failed("Not implemented yet");
       end if;
