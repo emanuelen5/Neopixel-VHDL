@@ -85,5 +85,6 @@ package body message_types_pkg is
     color.red := pop(msg);
     color.green := pop(msg);
     color.blue := pop(msg);
+    delete(msg);
   end procedure read;
 end package body message_types_pkg;
