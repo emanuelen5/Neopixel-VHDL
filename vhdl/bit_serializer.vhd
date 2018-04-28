@@ -70,10 +70,29 @@ begin
         end case;
     end process timeout_proc;
 
+    choose_ticks : process (serializer_state, color_reg, color_bit_index) is
+    begin
+        case serializer_state is
+            when high =>
+                if get_bit(color_reg, color_bit_index) = '0' then
+                    chosen_ticks <= T0H_ticks;
+                else -- get_bit(color_reg, 0) = '1' then
+                    chosen_ticks <= T1H_ticks;
+                end if;
+            when low =>
+                if get_bit(color_reg, color_bit_index) = '0' then
+                    chosen_ticks <= T0L_ticks;
+                else -- get_bit(color_reg, 0) = '1' then
+                    chosen_ticks <= T1L_ticks;
+                end if;
+            when others =>
+                chosen_ticks <= RES_ticks;
+        end case;
+    end process choose_ticks;
+
     bit_serializer_state_transitions : process(clk, rst_n)
     begin
         if rst_n = '0' then
-            chosen_ticks <= RES_ticks;
             serializer_state <= reset;
         elsif rising_edge(clk) then
             case serializer_state is
@@ -91,20 +110,10 @@ begin
 
                 when done_delay =>
                     serializer_state <= high;
-                    if get_bit(color_reg, color_bit_index) = '0' then
-                        chosen_ticks <= T0H_ticks;
-                    else -- get_bit(color_reg, 0) = '1' then
-                        chosen_ticks <= T1H_ticks;
-                    end if;
 
                 when high =>
                     if timeout then
                         serializer_state <= low;
-                        if get_bit(color_reg, color_bit_index) = '0' then
-                            chosen_ticks <= T0L_ticks;
-                        else -- get_bit(color_reg, 0) = '1' then
-                            chosen_ticks <= T1L_ticks;
-                        end if;
                     end if;
 
                 when low =>
@@ -113,11 +122,6 @@ begin
                     elsif timeout then
                         color_bit_index <= color_bit_index + 1;
                         serializer_state <= high;
-                        if get_bit(color_reg, color_bit_index) = '0' then
-                            chosen_ticks <= T0H_ticks;
-                        else -- get_bit(color_reg, 0) = '1' then
-                            chosen_ticks <= T1H_ticks;
-                        end if;
                     end if;
 
                 when others =>
