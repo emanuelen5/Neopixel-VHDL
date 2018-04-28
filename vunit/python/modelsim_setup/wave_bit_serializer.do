@@ -11,8 +11,9 @@ add wave -noupdate /bit_serializer_vunit_tb/bs_i0/color_reg
 add wave -noupdate /bit_serializer_vunit_tb/bs_i0/timeout
 add wave -noupdate /bit_serializer_vunit_tb/bs_i0/count
 add wave -noupdate -expand /bit_serializer_vunit_tb/bs_i0/chosen_ticks
+add wave -noupdate /bit_serializer_vunit_tb/bs_i0/color_bit_reg
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {167849 ps} 0}
+WaveRestoreCursors {{Cursor 1} {96005 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100

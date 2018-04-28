@@ -29,7 +29,6 @@ architecture arch of bit_serializer is
     signal timeout : boolean;
 
     signal color_reg : rgb_color_t;
-    signal color_bit_reg : std_logic;
     subtype bit_cycle_state_t is natural range 0 to 7;
     subtype color_cycle_state_t is natural range 0 to 2;
     type serialization_state is (reset, high, low, res, done, done_delay, next_color);
@@ -39,6 +38,7 @@ architecture arch of bit_serializer is
     signal serializer_state : serialization_state;
     signal chosen_ticks : tick_range;
     signal count : natural;
+    signal color_bit_index : natural range 0 to 23;
 begin
     state_signal_driver : process(all)
     begin
@@ -100,10 +100,11 @@ begin
                         serializer_state <= done_delay;
                         color_reg <= color;
                     end if;
+                    color_bit_index <= 0;
 
                 when done_delay =>
                     serializer_state <= high;
-                    if get_bit(color_reg, 0) = '0' then
+                    if get_bit(color_reg, color_bit_index) = '0' then
                         chosen_ticks <= T0H_ticks;
                     else -- get_bit(color_reg, 0) = '1' then
                         chosen_ticks <= T1H_ticks;
@@ -112,11 +113,24 @@ begin
                 when high =>
                     if timeout then
                         serializer_state <= low;
+                        if get_bit(color_reg, color_bit_index) = '0' then
+                            chosen_ticks <= T0L_ticks;
+                        else -- get_bit(color_reg, 0) = '1' then
+                            chosen_ticks <= T1L_ticks;
+                        end if;
                     end if;
 
                 when low =>
-                    if timeout then
+                    if color_bit_index = 23 and timeout then
                         serializer_state <= res;
+                    elsif timeout then
+                        color_bit_index <= color_bit_index + 1;
+                        serializer_state <= high;
+                        if get_bit(color_reg, color_bit_index) = '0' then
+                            chosen_ticks <= T0H_ticks;
+                        else -- get_bit(color_reg, 0) = '1' then
+                            chosen_ticks <= T1H_ticks;
+                        end if;
                     end if;
 
                 when others =>
