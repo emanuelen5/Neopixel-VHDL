@@ -154,11 +154,11 @@ package body neopixel_pkg is
   ) return std_logic is
   begin
     if (index < 8) then
-      return std_logic(rgb.green(index - 0));
+      return std_logic(rgb.green(7 - index));
     elsif (index < 16) then
-      return std_logic(rgb.red(index - 8));
+      return std_logic(rgb.red(15 - index));
     else
-      return std_logic(rgb.blue(index - 16));
+      return std_logic(rgb.blue(23 - index));
     end if;
   end function;
 end package body; -- neopixel_pkg
