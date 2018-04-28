@@ -164,19 +164,19 @@ begin
     variable interpreted_high : bit;
     variable start_time : time;
   begin
-    log("serialized is not zero");
+    debug("serialized is not zero");
     if (serialized /= '1') then
       wait until serialized = '1';
     end if;
     start_time := now;
-    log("serialized is one");
+    debug("serialized is one");
     if (serialized /= '0') then
       wait until serialized = '0';
     end if;
-    log("serialized is zero");
+    debug("serialized is zero");
     interpreted_high := '1' when (now - start_time) > T0.H.maximum else '0';
     log("interpreted as: " & to_string(interpreted_high));
-    log("Time high: " & to_string(now - start_time));
+    debug("Time high: " & to_string(now - start_time));
     message := new_msg;
     push(message, interpreted_high);
     send(net, proc_tests_bit, message);
@@ -189,12 +189,12 @@ begin
     variable color_m_msg : color_m_msg_t;
   begin
     read(net, self, send_value);
-    --info("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
+    debug("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
     valid <= true;
     color <= send_value;
     wait until rising_edge(clk) and ready;
     valid <= false;
-    info("send_serialized_bit: Sent!");
+    debug("send_serialized_bit: Sent!");
   end process send_serialized_bit;
 
   bs_i0 : bit_serializer
