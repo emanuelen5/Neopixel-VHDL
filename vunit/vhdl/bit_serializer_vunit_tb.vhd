@@ -145,6 +145,9 @@ begin
             blue => RV.RandUnsigned(8)
           )
         );
+      elsif run("Serialization: Two pixels") then
+        queue_color_check_received(neopixel_white);
+        queue_color_check_received(neopixel_black);
       elsif run("Timeout when no data within RES") then
         check_failed("Not implemented yet");
       end if;
