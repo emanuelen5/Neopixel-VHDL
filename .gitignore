@@ -1,3 +1,4 @@
 vunit/python/vunit_out
 *.html
 imp
+*.bak
