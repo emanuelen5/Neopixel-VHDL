@@ -77,12 +77,6 @@ if {$make_assignments} {
 	set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 	set_global_assignment -name CRC_ERROR_CHECKING ON
 	set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
-	set_location_assignment PIN_17 -to clock
-	set_location_assignment PIN_3 -to led_out[2]
-	set_location_assignment PIN_7 -to led_out[1]
-	set_location_assignment PIN_9 -to led_out[0]
-	set_location_assignment PIN_144 -to button
-	set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to button
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments
