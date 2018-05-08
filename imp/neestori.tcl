@@ -14,7 +14,7 @@
 
 # Quartus II: Generate Tcl File for Project
 # File: neestori.tcl
-# Generated on: Tue May 08 21:05:55 2018
+# Generated on: Tue May 08 21:44:13 2018
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project
@@ -75,7 +75,7 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
 	set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL OFF
 	set_global_assignment -name USE_CONFIGURATION_DEVICE ON
-	set_global_assignment -name CRC_ERROR_CHECKING ON
+	set_global_assignment -name CRC_ERROR_CHECKING OFF
 	set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
