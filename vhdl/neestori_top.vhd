@@ -26,7 +26,9 @@ begin
     rst                          <= not rst_n;
     led_out                      <= not led_out_inverted;
     --led_out_inverted <= std_logic_vector(to_unsigned(counter_frequency, 3));
-    led_out_inverted(2 downto 0) <= counter_i(c_counter_width-(1+counter_frequency) downto c_counter_width-(3+counter_frequency));
+    led_out_inverted(2 downto 0) <= (
+	     others => button_debounced
+    );
 
     -- Debounce the button
     u0_debounce : entity work.debouncer
