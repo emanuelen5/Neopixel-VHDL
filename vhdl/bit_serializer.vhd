@@ -29,12 +29,8 @@ architecture arch of bit_serializer is
     signal timeout : boolean;
 
     signal color_reg : rgb_color_t;
-    subtype bit_cycle_state_t is natural range 0 to 7;
-    subtype color_cycle_state_t is natural range 0 to 2;
     type serialization_state is (reset, high, low, res, done, done_delay, next_color);
 
-    signal bit_cycle_state : bit_cycle_state_t;
-    signal color_cycle_state : color_cycle_state_t;
     signal serializer_state : serialization_state;
     signal chosen_ticks : tick_range;
     signal count : natural;
@@ -101,8 +97,6 @@ begin
                 when done =>
                     -- Start up if there is a valid color present
                     if valid_s then
-                        color_cycle_state <= 0;
-                        bit_cycle_state <= 0;
                         serializer_state <= done_delay;
                         color_reg <= color;
                     end if;
