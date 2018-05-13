@@ -27,6 +27,9 @@ create_clock -name "clock" -period 20.000ns [get_ports {clock}]
 set_false_path -from [get_ports {button}] -to *
 set_max_delay -from * -to [get_ports {led_out[*]}] 20.000ns
 set_min_delay -from * -to [get_ports {led_out[*]}] 0.000ns
+# Practially no constraint needs to be set since it is serialized at 800kHz
+set_max_delay -from * -to [get_ports {neo_serialized}] 20.000ns
+set_min_delay -from * -to [get_ports {neo_serialized}] 0.000ns
 
 # Automatically constrain PLL and other generated clocks
 derive_pll_clocks -create_base_clocks

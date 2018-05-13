@@ -24,3 +24,4 @@ set_location_assignment PIN_7 -to led_out[1]
 set_location_assignment PIN_9 -to led_out[0]
 set_location_assignment PIN_144 -to button
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to button
+set_location_assignment PIN_30 -to neo_serialized
