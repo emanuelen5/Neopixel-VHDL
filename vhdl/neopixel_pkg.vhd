@@ -31,6 +31,9 @@ package neopixel_pkg is
     H, L  : time_range;
   end record;
 
+  -- Should be unlimited, but must set some limit
+  constant MAX_TIME : time := 36 sec;
+
   constant T0 : high_low_time_t := (
       H => (
           minimum => 0.200 us,
@@ -47,7 +50,7 @@ package neopixel_pkg is
       H => (
           minimum => 0.55 us,
           mean => 0.70 us,
-          maximum => 3600 sec -- No maximum?
+          maximum => MAX_TIME -- No maximum?
         ),
       L => (
           minimum => 0.45 us,
@@ -61,7 +64,7 @@ package neopixel_pkg is
   constant RES : time_range := (
       minimum => 6.00 us,
       mean => 6.00 us,
-      maximum => 3600 sec
+      maximum => MAX_TIME
     ); -- 50.0 us according to spec
 
   function frequency_time_to_ticks(
@@ -127,9 +130,15 @@ package body neopixel_pkg is
     t : time
   ) return natural is
     variable ret : natural := 0;
+    variable ticks_per_s : unsigned(31 downto 0);
+    variable total_ticks : unsigned(63 downto 0);
+    variable divided_ticks : unsigned(63 downto 0);
   begin
     assert freq > 0.0 report "Frequency must be positive" severity failure;
-    ret := (integer(t * freq / 100 ms) + 5)/10;
+    ticks_per_s := to_unsigned(t / 1.0 ns, 32);
+    total_ticks := ticks_per_s * integer(freq);
+    divided_ticks := total_ticks / 1e9;
+    ret := to_integer(divided_ticks);
     return ret;
   end function;
 
