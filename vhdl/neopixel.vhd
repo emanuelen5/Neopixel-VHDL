@@ -13,6 +13,7 @@ entity neopixel is
     rst_n   : in  std_logic;
     color   : in  rgb_color_t;
     valid   : in  boolean; -- Read when ready is '1'
+    last    : in  boolean;
     ready   : out boolean; -- Ready to accept another color
     serialized_color : out std_logic
   );
@@ -39,6 +40,7 @@ begin
     rst_n      => rst_n,
     color      => color_i,
     valid_s    => valid_color,
+    last_s     => last,
     ready_s    => ready_color,
     serialized => serialized_color
   );

@@ -13,6 +13,7 @@ entity bit_serializer is
         rst_n       : in  std_logic := '1';
         color       : in  rgb_color_t;
         valid_s     : in  boolean; -- Read when ready is '1'
+        last_s      : in  boolean;
         ready_s     : out boolean := true; -- Ready to accept another color bit
         serialized  : out std_logic := '0'
     );

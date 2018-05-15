@@ -38,13 +38,15 @@ package message_types_pkg is
   procedure write (
     signal net : inout network_t;
     constant actor : in actor_t;
-    constant color : in rgb_color_t
+    constant color : in rgb_color_t;
+    constant valid : in boolean
   );
 
   procedure read (
     signal net : inout network_t;
     constant actor : in actor_t;
-    variable color : out rgb_color_t
+    variable color : out rgb_color_t;
+    variable valid : out boolean
   );
 
 end package; -- message_types_pkg
@@ -64,20 +66,23 @@ package body message_types_pkg is
   procedure write (
     signal net : inout network_t;
     constant actor : in actor_t;
-    constant color : in rgb_color_t
+    constant color : in rgb_color_t;
+    constant valid : in boolean
   ) is
     variable msg : msg_t := new_msg;
   begin
     push(msg, color.red);
     push(msg, color.green);
     push(msg, color.blue);
+    push(msg, valid);
     send(net, actor, msg);
   end procedure;
 
   procedure read (
     signal net : inout network_t;
     constant actor : in actor_t;
-    variable color : out rgb_color_t
+    variable color : out rgb_color_t;
+    variable valid : out boolean
   ) is
     variable msg : msg_t;
   begin
@@ -85,6 +90,7 @@ package body message_types_pkg is
     color.red := pop(msg);
     color.green := pop(msg);
     color.blue := pop(msg);
+    valid := pop(msg);
     delete(msg);
   end procedure read;
 end package body message_types_pkg;

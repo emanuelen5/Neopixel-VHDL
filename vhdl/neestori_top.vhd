@@ -32,7 +32,7 @@ begin
     rst                          <= not rst_n;
     led_out                      <= not led_out_inverted;
     led_out_inverted(2 downto 0) <= (
-	     others => button_debounced
+        others => button_debounced
     );
 
     -- Debounce the button
@@ -56,6 +56,7 @@ begin
             rst_n      => rst_n,
             color      => color,
             valid_s    => valid_s,
+            last_s     => false,
             ready_s    => ready_s,
             serialized => neo_serialized
         );

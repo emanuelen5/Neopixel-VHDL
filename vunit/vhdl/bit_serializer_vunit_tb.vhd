@@ -27,6 +27,7 @@ architecture arch of bit_serializer_vunit_tb is
   signal clk   : std_logic := '1';
   signal rst_n : std_logic := '0';
   signal valid, ready : boolean := false;
+  signal last         : boolean := false;
   signal color        : rgb_color_t := neopixel_black;
   signal serialized   : std_logic := '0';
   constant frequency : real := 50.0e6;
@@ -55,10 +56,11 @@ begin
     end procedure;
 
     procedure queue_color (
-      constant send_value : rgb_color_t
+      constant send_value : rgb_color_t;
+      constant last_value : boolean := false
     ) is
     begin
-      write(net, proc_send_color, send_value);
+      write(net, proc_send_color, send_value, last_value);
     end procedure;
 
     procedure receive_bit (
@@ -89,7 +91,7 @@ begin
     end procedure expect_bit;
 
     procedure queue_color_check_received (
-      constant send_value : rgb_color_t 
+      constant send_value : rgb_color_t
     ) is
       variable tmp_color : rgb_color_t := neopixel_black;
       variable tmp_bit : std_logic;
@@ -189,14 +191,17 @@ begin
     constant self : actor_t := new_actor("send_color");
     variable message : msg_t;
     variable send_value : rgb_color_t;
+    variable last_value : boolean;
     variable color_m_msg : color_m_msg_t;
   begin
-    read(net, self, send_value);
+    read(net, self, send_value, last_value);
     debug("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
     valid <= true;
     color <= send_value;
+    last  <= last_value;
     wait until rising_edge(clk) and ready;
     valid <= false;
+    last  <= false;
     debug("send_serialized_bit: Sent!");
   end process send_serialized_bit;
 
@@ -209,8 +214,9 @@ begin
     rst_n      => rst_n,
     color      => color,
     valid_s    => valid,
+    last_s     => false,
     ready_s    => ready,
     serialized => serialized
   );
-  
+
 end architecture; -- arch

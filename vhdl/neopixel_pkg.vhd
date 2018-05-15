@@ -99,6 +99,7 @@ package neopixel_pkg is
       rst_n       : in  std_logic;
       color       : in  rgb_color_t;
       valid_s     : in  boolean; -- Read when ready is '1'
+      last_s      : in  boolean;
       ready_s     : out boolean; -- Ready to accept another color
       serialized  : out std_logic
     );
@@ -113,6 +114,7 @@ package neopixel_pkg is
       rst_n   : in  std_logic;
       color   : in  rgb_color_t;
       valid   : in  boolean; -- Read when ready is '1'
+      last    : in  boolean;
       ready   : out boolean; -- Ready to accept another color
       serialized_color : out std_logic
     );
