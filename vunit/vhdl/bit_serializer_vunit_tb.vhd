@@ -92,7 +92,7 @@ begin
 
     procedure queue_color_check_received (
       constant send_value : rgb_color_t;
-      constant last       : std_logic := 'X'
+      constant last       : std_logic := '0'
     ) is
       variable tmp_color : rgb_color_t := neopixel_black;
       variable tmp_bit : std_logic;
@@ -109,12 +109,14 @@ begin
             when 3 =>
               tmp_color.blue(bit_index) := tmp_bit;
           end case;
+          info("Received bit " & to_string(color_index) & "." & to_string(bit_index));
         end loop;
       end loop;
       check_equal(tmp_color, send_value, "Comparison between sent value and intrepreted value");
     end procedure queue_color_check_received;
 
     variable RV : RandomPType;
+    variable last_time : time;
   begin
     RV.InitSeed(RV'instance_name);
     test_runner_setup(runner, runner_cfg);
@@ -151,8 +153,16 @@ begin
       elsif run("Serialization: Two pixels") then
         queue_color_check_received(neopixel_white);
         queue_color_check_received(neopixel_black);
+      elsif run("Timeout: At TLAST") then
+        queue_color_check_received(neopixel_black, '1');
+        last_time := now;
+        queue_color(neopixel_white);
+        wait until serialized = '1' for RES.minimum;
+        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time));
       elsif run("Timeout: No data within RES") then
-        check_failed("Not implemented yet");
+        last_time := now;
+        wait until serialized = '1' for RES.minimum;
+        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time));
       end if;
     end loop;
 

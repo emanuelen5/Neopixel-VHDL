@@ -30,8 +30,9 @@ architecture arch of bit_serializer is
     signal timeout : boolean;
 
     signal color_reg : rgb_color_t;
-    type serialization_state is (reset, high, low, res, done, done_delay, next_color);
+    type serialization_state is (high, low, res, done, done_delay, next_color);
 
+    signal last_reg : std_logic;
     signal serializer_state : serialization_state;
     signal chosen_ticks : tick_range;
     signal count : natural;
@@ -51,8 +52,7 @@ begin
             when high =>
                 serialized <= '1';
             when others =>
-                ready_s <= '0';
-                serialized <= '0';
+                null;
         end case;
     end process;
 
@@ -63,7 +63,7 @@ begin
             when high | low =>
                 timeout <= count >= chosen_ticks.mean - 1;
             when others =>
-                timeout <= count >= chosen_ticks.maximum - 1;
+                timeout <= count >= chosen_ticks.minimum - 1;
         end case;
     end process timeout_proc;
 
@@ -90,16 +90,15 @@ begin
     bit_serializer_state_transitions : process(clk, rst_n)
     begin
         if rst_n = '0' then
-            serializer_state <= reset;
+            serializer_state <= done;
         elsif rising_edge(clk) then
             case serializer_state is
-                when reset =>
-                    serializer_state <= done;
                 when done =>
                     -- Start up if there is a valid color present
                     if valid_s then
                         serializer_state <= done_delay;
                         color_reg <= color;
+                        last_reg <= last_s;
                     end if;
                     color_bit_index <= 0;
 
@@ -112,15 +111,22 @@ begin
                     end if;
 
                 when low =>
-                    if color_bit_index = 23 and timeout then
+                    if color_bit_index = 23 and timeout and last_reg = '1' then
+                        serializer_state <= done;
+                    elsif color_bit_index = 23 and timeout and last_reg = '0' then
                         serializer_state <= res;
                     elsif timeout then
                         color_bit_index <= color_bit_index + 1;
                         serializer_state <= high;
                     end if;
 
+                when res =>
+                    if timeout then
+                        serializer_state <= done;
+                    end if;
+
                 when others =>
-                    serializer_state <= reset;
+                    serializer_state <= done;
              end case;
         end if;
     end process bit_serializer_state_transitions;
@@ -137,7 +143,7 @@ begin
                     else
                         count <= count + 1;
                     end if;
-                when reset | done =>
+                when done =>
                     count <= 0;
                 when others =>
                     count <= 0;
