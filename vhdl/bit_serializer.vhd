@@ -91,6 +91,7 @@ begin
     begin
         if rst_n = '0' then
             serializer_state <= done;
+            last_reg <= '0';
         elsif rising_edge(clk) then
             case serializer_state is
                 when done =>

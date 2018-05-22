@@ -227,7 +227,7 @@ begin
     rst_n      => rst_n,
     color      => color,
     valid_s    => valid,
-    last_s     => '0',
+    last_s     => last,
     ready_s    => ready,
     serialized => serialized
   );
