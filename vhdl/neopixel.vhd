@@ -12,16 +12,16 @@ entity neopixel is
     clk     : in  std_logic;
     rst_n   : in  std_logic;
     color   : in  rgb_color_t;
-    valid   : in  boolean; -- Read when ready is '1'
-    last    : in  boolean;
-    ready   : out boolean; -- Ready to accept another color
+    valid   : in  std_logic; -- Read when ready is '1'
+    last    : in  std_logic;
+    ready   : out std_logic; -- Ready to accept another color
     serialized_color : out std_logic
   );
 end entity; -- neopixel
 
 architecture arch of neopixel is
-  signal valid_color : boolean;
-  signal ready_color : boolean;
+  signal valid_color : std_logic;
+  signal ready_color : std_logic;
   signal color_i : rgb_color_t;
 begin
 

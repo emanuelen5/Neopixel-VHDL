@@ -24,8 +24,8 @@ architecture arch of neestori_top is
 		  green => to_unsigned(0, 8),
 		  blue => to_unsigned(0, 8)
 	 );
-    signal valid_s    : boolean := true;
-    signal ready_s    : boolean;
+    signal valid_s : std_logic := '1';
+    signal ready_s : std_logic;
 begin
 
     rst_n                        <= '1';
@@ -56,7 +56,7 @@ begin
             rst_n      => rst_n,
             color      => color,
             valid_s    => valid_s,
-            last_s     => false,
+            last_s     => '0',
             ready_s    => ready_s,
             serialized => neo_serialized
         );

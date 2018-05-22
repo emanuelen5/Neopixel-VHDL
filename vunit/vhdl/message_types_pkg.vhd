@@ -39,14 +39,14 @@ package message_types_pkg is
     signal net : inout network_t;
     constant actor : in actor_t;
     constant color : in rgb_color_t;
-    constant valid : in boolean
+    constant valid : in std_logic
   );
 
   procedure read (
     signal net : inout network_t;
     constant actor : in actor_t;
     variable color : out rgb_color_t;
-    variable valid : out boolean
+    variable valid : out std_logic
   );
 
 end package; -- message_types_pkg
@@ -67,7 +67,7 @@ package body message_types_pkg is
     signal net : inout network_t;
     constant actor : in actor_t;
     constant color : in rgb_color_t;
-    constant valid : in boolean
+    constant valid : in std_logic
   ) is
     variable msg : msg_t := new_msg;
   begin
@@ -82,7 +82,7 @@ package body message_types_pkg is
     signal net : inout network_t;
     constant actor : in actor_t;
     variable color : out rgb_color_t;
-    variable valid : out boolean
+    variable valid : out std_logic
   ) is
     variable msg : msg_t;
   begin

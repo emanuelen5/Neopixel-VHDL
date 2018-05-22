@@ -12,9 +12,9 @@ entity bit_serializer is
         clk         : in  std_logic;
         rst_n       : in  std_logic := '1';
         color       : in  rgb_color_t;
-        valid_s     : in  boolean; -- Read when ready is '1'
-        last_s      : in  boolean;
-        ready_s     : out boolean := true; -- Ready to accept another color bit
+        valid_s     : in  std_logic; -- Read when ready is '1'
+        last_s      : in  std_logic;
+        ready_s     : out std_logic := '1'; -- Ready to accept another color bit
         serialized  : out std_logic := '0'
     );
 end entity; -- bit_serializer
@@ -43,15 +43,15 @@ begin
 
     state_signal_driver : process (serializer_state)
     begin
-        ready_s <= false;
+        ready_s <= '0';
         serialized <= '0';
         case serializer_state is
             when done =>
-                ready_s <= true;
+                ready_s <= '1';
             when high =>
                 serialized <= '1';
             when others =>
-                ready_s <= false;
+                ready_s <= '0';
                 serialized <= '0';
         end case;
     end process;

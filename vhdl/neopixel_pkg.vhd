@@ -77,19 +77,6 @@ package neopixel_pkg is
     constant tr   : time_range
   ) return tick_range;
 
-  component color_serializer is
-    port (
-      clk     : in  std_logic;
-      rst_n   : in  std_logic;
-      color   : in  rgb_color_t;
-      valid_s : in  boolean; -- Read when ready is '1'
-      ready_s : out boolean; -- Ready to accept another color
-      valid_m : out boolean;
-      ready_m : in  boolean;
-      bit_out : out std_logic
-    );
-  end component; -- color_serializer
-
   component bit_serializer is
     generic (
       clk_frequency : real
@@ -98,9 +85,9 @@ package neopixel_pkg is
       clk         : in  std_logic;
       rst_n       : in  std_logic;
       color       : in  rgb_color_t;
-      valid_s     : in  boolean; -- Read when ready is '1'
-      last_s      : in  boolean;
-      ready_s     : out boolean; -- Ready to accept another color
+      valid_s     : in  std_logic; -- Read when ready is '1'
+      last_s      : in  std_logic;
+      ready_s     : out std_logic; -- Ready to accept another color
       serialized  : out std_logic
     );
   end component; -- bit_serializer
@@ -113,9 +100,9 @@ package neopixel_pkg is
       clk     : in  std_logic;
       rst_n   : in  std_logic;
       color   : in  rgb_color_t;
-      valid   : in  boolean; -- Read when ready is '1'
-      last    : in  boolean;
-      ready   : out boolean; -- Ready to accept another color
+      valid   : in  std_logic; -- Read when ready is '1'
+      last    : in  std_logic;
+      ready   : out std_logic; -- Ready to accept another color
       serialized_color : out std_logic
     );
   end component; -- neopixel

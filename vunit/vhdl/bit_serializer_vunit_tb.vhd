@@ -26,8 +26,8 @@ end entity; -- bit_serializer_vunit_tb
 architecture arch of bit_serializer_vunit_tb is
   signal clk   : std_logic := '1';
   signal rst_n : std_logic := '0';
-  signal valid, ready : boolean := false;
-  signal last         : boolean := false;
+  signal valid, ready : std_logic := '0';
+  signal last         : std_logic := '0';
   signal color        : rgb_color_t := neopixel_black;
   signal serialized   : std_logic := '0';
   constant frequency : real := 50.0e6;
@@ -57,7 +57,7 @@ begin
 
     procedure queue_color (
       constant send_value : rgb_color_t;
-      constant last_value : boolean := false
+      constant last_value : std_logic := '0'
     ) is
     begin
       write(net, proc_send_color, send_value, last_value);
@@ -76,7 +76,7 @@ begin
 
     procedure expect_bit (
       constant expected    : in  std_logic := '-';
-      constant msg         : in  string := ""
+      constant msg         : in  string    := ""
     ) is
       variable decoded_bit : std_logic;
     begin
@@ -91,12 +91,13 @@ begin
     end procedure expect_bit;
 
     procedure queue_color_check_received (
-      constant send_value : rgb_color_t
+      constant send_value : rgb_color_t;
+      constant last       : std_logic := 'X'
     ) is
       variable tmp_color : rgb_color_t := neopixel_black;
       variable tmp_bit : std_logic;
     begin
-      queue_color(send_value);
+      queue_color(send_value, last);
       for color_index in 1 to 3 loop
         for bit_index in 7 downto 0 loop
           receive_bit(tmp_bit);
@@ -150,7 +151,7 @@ begin
       elsif run("Serialization: Two pixels") then
         queue_color_check_received(neopixel_white);
         queue_color_check_received(neopixel_black);
-      elsif run("Timeout when no data within RES") then
+      elsif run("Timeout: No data within RES") then
         check_failed("Not implemented yet");
       end if;
     end loop;
@@ -191,17 +192,17 @@ begin
     constant self : actor_t := new_actor("send_color");
     variable message : msg_t;
     variable send_value : rgb_color_t;
-    variable last_value : boolean;
+    variable last_value : std_logic;
     variable color_m_msg : color_m_msg_t;
   begin
     read(net, self, send_value, last_value);
     debug("send_serialized_bit: Queueing color '" & to_string(color_m_msg) & "' to be sent serially...");
-    valid <= true;
+    valid <= '1';
     color <= send_value;
     last  <= last_value;
-    wait until rising_edge(clk) and ready;
-    valid <= false;
-    last  <= false;
+    wait until rising_edge(clk) and ready = '1';
+    valid <= '0';
+    last  <= '0';
     debug("send_serialized_bit: Sent!");
   end process send_serialized_bit;
 
@@ -214,7 +215,7 @@ begin
     rst_n      => rst_n,
     color      => color,
     valid_s    => valid,
-    last_s     => false,
+    last_s     => '0',
     ready_s    => ready,
     serialized => serialized
   );
