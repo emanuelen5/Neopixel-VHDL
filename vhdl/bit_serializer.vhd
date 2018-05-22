@@ -111,9 +111,9 @@ begin
                     end if;
 
                 when low =>
-                    if color_bit_index = 23 and timeout and last_reg = '1' then
+                    if color_bit_index = 23 and timeout and last_reg = '0' then
                         serializer_state <= done;
-                    elsif color_bit_index = 23 and timeout and last_reg = '0' then
+                    elsif color_bit_index = 23 and timeout and last_reg = '1' then
                         serializer_state <= res;
                     elsif timeout then
                         color_bit_index <= color_bit_index + 1;

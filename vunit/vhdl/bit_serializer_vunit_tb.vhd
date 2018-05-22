@@ -109,7 +109,7 @@ begin
             when 3 =>
               tmp_color.blue(bit_index) := tmp_bit;
           end case;
-          info("Received bit " & to_string(color_index) & "." & to_string(bit_index));
+          info("Received bit " & to_string(color_index) & "." & to_string(bit_index) & " = " & to_string(tmp_bit));
         end loop;
       end loop;
       check_equal(tmp_color, send_value, "Comparison between sent value and intrepreted value");
@@ -158,11 +158,11 @@ begin
         last_time := now;
         queue_color(neopixel_white);
         wait until serialized = '1' for RES.minimum;
-        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time));
+        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time) & ", expected " & to_string(RES.minimum));
       elsif run("Timeout: No data within RES") then
         last_time := now;
         wait until serialized = '1' for RES.minimum;
-        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time));
+        check_relation(now - last_time >= RES.minimum, "Reset should happen after TLAST = '1'. Was low for " & to_string(now - last_time) & ", expected " & to_string(RES.minimum));
       end if;
     end loop;
 
@@ -180,8 +180,11 @@ begin
     variable interpreted_high : bit;
     variable start_time : time;
   begin
-    debug("serialized is not zero");
+    if (rst_n = '0') then
+      wait until rst_n = '1';
+    end if;
     if (serialized /= '1') then
+      debug("serialized is not one");
       wait until serialized = '1';
     end if;
     start_time := now;
@@ -191,7 +194,6 @@ begin
     end if;
     debug("serialized is zero");
     interpreted_high := '1' when (now - start_time) > T0.H.maximum else '0';
-    log("interpreted as: " & to_string(interpreted_high));
     debug("Time high: " & to_string(now - start_time));
     message := new_msg;
     push(message, interpreted_high);
