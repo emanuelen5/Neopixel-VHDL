@@ -218,7 +218,7 @@ begin
     debug("send_serialized_bit: Sent!");
   end process send_serialized_bit;
 
-  bs_i0 : bit_serializer
+  bs_i0 : entity work.bit_serializer
   generic map (
     clk_frequency => frequency
   )

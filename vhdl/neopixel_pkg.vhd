@@ -77,36 +77,6 @@ package neopixel_pkg is
     constant tr   : time_range
   ) return tick_range;
 
-  component bit_serializer is
-    generic (
-      clk_frequency : real
-    );
-    port (
-      clk         : in  std_logic;
-      rst_n       : in  std_logic;
-      color       : in  rgb_color_t;
-      valid_s     : in  std_logic; -- Read when ready is '1'
-      last_s      : in  std_logic;
-      ready_s     : out std_logic; -- Ready to accept another color
-      serialized  : out std_logic
-    );
-  end component; -- bit_serializer
-
-  component neopixel is
-    generic (
-      clk_frequency  : real := 50.0e6
-    );
-    port (
-      clk     : in  std_logic;
-      rst_n   : in  std_logic;
-      color   : in  rgb_color_t;
-      valid   : in  std_logic; -- Read when ready is '1'
-      last    : in  std_logic;
-      ready   : out std_logic; -- Ready to accept another color
-      serialized_color : out std_logic
-    );
-  end component; -- neopixel
-
   function get_bit (
     rgb   : rgb_color_t;
     index : natural range 0 to 23

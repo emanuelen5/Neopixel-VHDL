@@ -31,7 +31,7 @@ begin
 
   -- fifo color in, color out
 
-  bit_s : bit_serializer
+  bit_s : entity work.bit_serializer
   generic map (
     clk_frequency => clk_frequency
   )
