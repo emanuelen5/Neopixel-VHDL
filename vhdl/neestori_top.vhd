@@ -19,11 +19,11 @@ architecture arch of neestori_top is
     signal rst_n                  : std_logic := '0';
     signal button_debounced       : std_logic := '0';
     constant C_MAX_DEBOUNCE_COUNT : natural   := 5000000;
-    signal color      : rgb_color_t := (
-        red => to_unsigned(255, 8),
-		  green => to_unsigned(0, 8),
-		  blue => to_unsigned(0, 8)
-	 );
+    signal color : rgb_color_t := (
+        red   => to_unsigned(255, 8),
+        green => to_unsigned(0, 8),
+        blue  => to_unsigned(0, 8)
+    );
     signal valid_s : std_logic := '1';
     signal ready_s : std_logic;
 begin
