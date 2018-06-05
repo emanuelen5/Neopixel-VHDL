@@ -26,6 +26,7 @@ architecture arch of neestori_top is
     );
     signal valid_s : std_logic := '1';
     signal ready_s : std_logic;
+    signal last_s  : std_logic := '1';
 begin
 
     rst_n                        <= '1';
@@ -56,7 +57,7 @@ begin
             rst_n      => rst_n,
             color      => color,
             valid_s    => valid_s,
-            last_s     => '0',
+            last_s     => last_s,
             ready_s    => ready_s,
             serialized => neo_serialized
         );
@@ -66,9 +67,12 @@ begin
     begin
         if rst_n = '0' then
         elsif rising_edge(clock) then
+            if (valid_s = '1' and ready_s = '1') then
+                color <= ((color.red + 1) mod 256, (color.green + 1) mod 256, (color.blue + 1) mod 256);
+            end if;
             -- The button is pressed
             if (button_debounced = '0' and last_button = '1') then
-                -- TODO: Do somoething with the button event
+                color <= (red => color.blue, green => color.red, blue => color.green);
             end if;
             last_button := button_debounced;
         end if;
