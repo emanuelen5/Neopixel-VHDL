@@ -20,7 +20,7 @@ architecture arch of neestori_top is
     signal button_debounced       : std_logic := '0';
     constant C_MAX_DEBOUNCE_COUNT : natural   := 5000000;
     signal color : rgb_color_t := (
-        red   => to_unsigned(255, 8),
+        red   => to_unsigned(0, 8),
         green => to_unsigned(0, 8),
         blue  => to_unsigned(0, 8)
     );
@@ -68,11 +68,11 @@ begin
         if rst_n = '0' then
         elsif rising_edge(clock) then
             if (valid_s = '1' and ready_s = '1') then
-                color <= ((color.red + 1) mod 256, (color.green + 1) mod 256, (color.blue + 1) mod 256);
+                color <= (color.red + 0, color.green, color.blue);
             end if;
             -- The button is pressed
             if (button_debounced = '0' and last_button = '1') then
-                color <= (red => color.blue, green => color.red, blue => color.green);
+                color <= (red => color.red + 10, others => (others => '0'));
             end if;
             last_button := button_debounced;
         end if;
