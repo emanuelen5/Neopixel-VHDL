@@ -62,8 +62,8 @@ package neopixel_pkg is
   -- TH + TL = 1250ns (+- 600ns)
   -- +- 150 ns
   constant RES : time_range := (
-      minimum => 6.00 us,
-      mean => 6.00 us,
+      minimum => 60.00 us,
+      mean => 60.00 us,
       maximum => MAX_TIME
     ); -- 50.0 us according to spec
 
