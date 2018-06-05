@@ -14,7 +14,7 @@
 
 # Quartus II: Generate Tcl File for Project
 # File: neestori.tcl
-# Generated on: Tue May 08 21:44:13 2018
+# Generated on: Tue Jun 05 23:50:47 2018
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project
@@ -41,7 +41,7 @@ if {[is_project_open]} {
 # Make assignments
 if {$make_assignments} {
 	set_global_assignment -name FAMILY "Cyclone II"
-	set_global_assignment -name DEVICE EP2C8T144C8
+	set_global_assignment -name DEVICE EP2C5T144C8
 	set_global_assignment -name TOP_LEVEL_ENTITY neestori_top
 	set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
 	set_global_assignment -name PROJECT_CREATION_TIME_DATE "19:57:00  MAY 08, 2018"
