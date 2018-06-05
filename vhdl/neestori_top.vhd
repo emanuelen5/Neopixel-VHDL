@@ -64,15 +64,33 @@ begin
 
     process (clock, rst_n)
         variable last_button : std_logic := '0';
+        variable led_cnt : integer := 0;
+        constant MAX_CNT : integer := 5;
+        variable change_color : integer := 0;
+        constant delay : integer := 25;
     begin
         if rst_n = '0' then
         elsif rising_edge(clock) then
             if (valid_s = '1' and ready_s = '1') then
-                color <= (color.red + 0, color.green, color.blue);
+                if led_cnt >= MAX_CNT-1 then
+                    led_cnt := 0;
+                    last_s <= '1';
+
+                    if change_color >= delay then
+                        change_color := 0;
+                        color <= (red => color.red + 1, green => color.green, blue => color.blue);
+                    else
+                        change_color := change_color + 1;
+                    end if;
+                else
+                    led_cnt := led_cnt + 1;
+                    last_s <= '0';
+                end if;
             end if;
+
             -- The button is pressed
             if (button_debounced = '0' and last_button = '1') then
-                color <= (red => color.red + 10, others => (others => '0'));
+                color <= (red => color.blue, green => color.red, blue => color.green);
             end if;
             last_button := button_debounced;
         end if;
