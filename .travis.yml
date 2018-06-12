@@ -1,6 +1,7 @@
 language: python
 python:
   - 3.6
+sudo: required
 
 install:
   - wget https://github.com/emanuelen5/GHDL-Travis-Hello-World/releases/download/untagged-b282d7f334e9b3d3d55b/ghdl
