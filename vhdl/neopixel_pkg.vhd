@@ -32,7 +32,7 @@ package neopixel_pkg is
   end record;
 
   -- Should be unlimited, but must set some limit
-  constant MAX_TIME : time := 36 sec;
+  constant MAX_TIME : time := 36 ms;
 
   constant T0 : high_low_time_t := (
       H => (

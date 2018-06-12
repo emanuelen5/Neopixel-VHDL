@@ -15,6 +15,7 @@ if not "-u" in sys.argv:
 # Create VUnit instance by parsing command line arguments
 vu = VUnit.from_argv()
 vu.add_com() # Add the communications library
+vu.add_osvvm()
 
 # Add all files ending in .vhd in current working directory to library
 lib_synth = vu.add_library("lib_synth")
