@@ -1,0 +1,14 @@
+language: python
+python:
+  - 3.6
+
+install:
+  - wget https://github.com/emanuelen5/GHDL-Travis-Hello-World/releases/download/untagged-d9278e1e3199f21b776b/ghdl_mcode.tar.gz
+  - tar -vxzf ghdl_mcode.tar.gz
+  - chmod +x ghdl_mcode/bin/ghdl
+  - export PATH=$PWD/ghdl_mcode/bin:$PATH
+  - pip install vunit_hdl==3.5
+
+script:
+  - pushd vunit/python
+  - python test.py
